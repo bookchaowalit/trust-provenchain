@@ -4,6 +4,21 @@ import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import solc from 'solc';
 
+/**
+ * @typedef {{ type: string, name?: string, stateMutability?: string, inputs?: unknown[], outputs?: unknown[] }} AbiItem
+ * @typedef {{ severity: 'error' | 'warning' | 'info', formattedMessage: string }} CompilerError
+ * @typedef {{
+ *   errors?: CompilerError[],
+ *   contracts?: Record<string, Record<string, { abi?: AbiItem[], evm?: { bytecode?: { object?: string } } }>>
+ * }} CompilerOutput
+ * @typedef {{ contractName: string, compiler: string, abi: AbiItem[], bytecode: string }} ContractArtifact
+ */
+
+/**
+ * Compiles contracts/NotaryRegistry.sol with the pinned solc.
+ * @param {{ writeArtifact?: boolean }} [options]
+ * @returns {Promise<ContractArtifact>}
+ */
 export async function compileContract({ writeArtifact = true } = {}) {
   const sourcePath = resolve('contracts/NotaryRegistry.sol');
   const source = await readFile(sourcePath, 'utf8');
@@ -16,6 +31,7 @@ export async function compileContract({ writeArtifact = true } = {}) {
     },
   };
 
+  /** @type {CompilerOutput} */
   const output = JSON.parse(solc.compile(JSON.stringify(input)));
   const errors = (output.errors ?? []).filter((item) => item.severity === 'error');
   if (errors.length > 0) {

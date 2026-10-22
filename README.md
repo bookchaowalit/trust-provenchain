@@ -20,7 +20,8 @@ mainnet deployment in this repository.
 
 ```bash
 npm install
-npm test
+npm test            # hashing, compile, and EVM behaviour tests (offline)
+npm run typecheck # tsc --noEmit, strict checkJs
 npm run compile
 npm run hash -- ./path/to/document.pdf
 npm run verify -- ./path/to/document.pdf 0x<sha256-digest>
