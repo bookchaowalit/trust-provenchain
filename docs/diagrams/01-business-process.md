@@ -9,12 +9,12 @@ Last reviewed: 2026-11-28 · commit `ac6df90`
 ```mermaid
 flowchart TD
   DOC["local document (founder-owned fixture)"] --> HASH["npm run hash: scripts/hash-document.mjs"]
-  HASH --> DIG["JSON: SHA-256 digest 0x..., byte_length, contents_persisted false"]
+  HASH --> DIG["JSON: SHA-256 digest 0x..., byte_length, source_path (absolute path), contents_persisted false"]
   DOC --> VER["npm run verify: scripts/verify-document.mjs"]
   DIG -->|"expected digest"| VER
   VER --> MATCH{"digest matches?"}
-  MATCH -->|yes| OK["verified"]
-  MATCH -->|no| BAD["mismatch"]
+  MATCH -->|yes| OK["verified (JSON: expected_hash, matches, source_path)"]
+  MATCH -->|no| BAD["mismatch (exit code 1)"]
   SOL["contracts/NotaryRegistry.sol"] --> COMP["npm run compile: solc 0.8.30 (scripts/compile-contract.mjs)"]
   COMP --> EVM["tests: in-memory EVM (@ethereumjs/evm)"]
   EVM --> NOT["notarize(bytes32): reject zero / duplicate, store submitter + timestamp, emit event"]
@@ -27,23 +27,31 @@ Sources: `scripts/hash-document.mjs`, `scripts/verify-document.mjs`, `scripts/co
 
 ข้อเท็จจริงจากโค้ด: ไม่มี script deploy, wallet, RPC, API, database หรือ frontend ใน repo; `verify` เทียบ digest บนเครื่องเท่านั้น ไม่ได้อ่าน `getRecord` จาก chain
 
+JSON ที่ `hash` และ `verify` พิมพ์ออกมามี `source_path` เป็นพาธเต็มของไฟล์ (อาจมีชื่อผู้ใช้และชื่อไฟล์): `contents_persisted: false` หมายถึงไม่เก็บเนื้อหา ไม่ได้หมายถึงไม่เปิดเผย metadata ก่อนแนบ JSON เป็นหลักฐานต้องตัดหรือปิด `source_path`
+
 ## To-Be (`PRODUCT.md` §Exit evidence for the next gate; `docs/ARCHITECTURE-DECISION.md`; `docs/LEGAL-PRIVACY-GATE.md`; `docs/DISCOVERY-PLAN.md`)
 
 ```mermaid
 flowchart TD
-  DOC["local document (non-sensitive fixture)"] --> HASH["npm run hash"]
+  DISC["20 discovery interviews (10 SME + 10 freelancer / agency)"] --> CAND["at least 3 pilot candidates (approved private handling)"]
+  CAND --> DEC{"recommendation before testnet onboarding: proceed / narrow / pivot / stop"}
+  DEC -->|"narrow / pivot / stop"| HALT["no testnet onboarding"]
+  GATE["legal / privacy gate passed: written opinion, PIA, public-data policy, terms"] --> APPR["human-approved testnet network, wallet, RPC, gas ceiling; secrets via approved secret mechanism"]
+  TECH["pre-testnet checks: fuzz / property tests, Solidity static analyzer, bytecode + ABI review"] --> DEPLOY["deploy NotaryRegistry on EVM testnet"]
+  APPR --> DEPLOY
+  DOC["non-sensitive founder-owned fixture only"] --> HASH["npm run hash"]
   HASH --> DIG["SHA-256 digest"]
-  GATE["legal / privacy gate passed: written opinion, PIA, public-data policy, terms"] --> APPR["human-approved testnet network, wallet, RPC, gas ceiling"]
-  APPR --> NET["NotaryRegistry deployed on EVM testnet"]
-  DIG -->|"reviewed testnet transaction"| NOT["notarize(bytes32)"]
-  NOT --> NET
-  NET --> GET["getRecord(bytes32): independent verification"]
-  DISC["20 discovery interviews (10 SME + 10 freelancer / agency)"] --> PILOT["3-5 manual pilot users verify sample hashes"]
+  DEPLOY --> TX["one bounded, reviewed testnet transaction: notarize(bytes32)"]
+  DIG --> TX
+  TX --> REC["record tx hash, chain ID, contract address, compiler version (no fixture contents)"]
+  REC --> GET["getRecord(bytes32): independent verification"]
+  DEC -->|proceed| PILOT["3-5 manual pilot users verify sample hashes"]
   GET --> PILOT
-  PILOT --> DEC["recommendation: proceed / narrow / pivot / stop"]
 ```
 
-Sources: `PRODUCT.md` §Exit evidence for the next gate, `docs/ARCHITECTURE-DECISION.md` §Decision, `docs/LEGAL-PRIVACY-GATE.md` §Pre-testnet acceptance gate, `docs/DISCOVERY-PLAN.md`, `docs/INTERVIEW-EVIDENCE-REGISTER.md`
+Sources: `PRODUCT.md` §Exit evidence for the next gate, `docs/ARCHITECTURE-DECISION.md` §Decision, `docs/LEGAL-PRIVACY-GATE.md` §Pre-testnet acceptance gate, `docs/TEST-STRATEGY.md` §Required before testnet, `docs/DISCOVERY-PLAN.md` §Exit criteria, `docs/INTERVIEW-EVIDENCE-REGISTER.md`, `README.md` §Testnet boundary
+
+ลำดับ: ตัดสินใจจาก discovery (ต้องมีผู้สมัคร pilot อย่างน้อย 3 คน) ก่อนรับผู้ใช้เข้า testnet; ธุรกรรม testnet ส่งได้หลัง gate ผ่าน, owner อนุมัติ network / wallet / RPC / gas, ตรวจสัญญาทางเทคนิคครบ และ deploy แล้วเท่านั้น โดยใช้ไฟล์ทดสอบที่ไม่อ่อนไหวและเป็นของ founder และ inject wallet / RPC ผ่านกลไก secret ที่อนุมัติ (ห้ามใส่ private key ใน repo หรือ command line)
 
 ## Gap
 
@@ -54,8 +62,9 @@ Sources: `PRODUCT.md` §Exit evidence for the next gate, `docs/ARCHITECTURE-DECI
 | G3 | ไม่มี deploy และ testnet transaction → contract บน testnet + reviewed transaction (deploy ไม่อัตโนมัติจนกว่า gate ผ่าน) | blocked | claude | `README.md` §Testnet boundary; `PRODUCT.md` §Exit evidence |
 | G4 | `verify` เทียบ digest บนเครื่องเท่านั้น → ตรวจกับ `getRecord` บน chain เพื่อ independent verification [ต้องยืนยัน] ว่า owner ต้องการใน CLI นี้ | decide | owner | `scripts/verify-document.mjs`; `PRODUCT.md` §Demo promise |
 | G5 | discovery interview 0 จาก 20 → 10 SME + 10 freelancer / agency พร้อมผลสรุปแบบ aggregate | todo | owner | `docs/INTERVIEW-EVIDENCE-REGISTER.md` (Interviews completed 0); `docs/DISCOVERY-PLAN.md` |
-| G6 | ไม่มี pilot user → 3–5 manual pilot users ตรวจ sample hash | todo | owner | `PRODUCT.md` §Exit evidence |
-| G7 | การตัดสินใจ proceed / narrow / pivot / stop ยังรอหลักฐาน → owner บันทึก recommendation | decide | owner | `docs/DISCOVERY-PLAN.md` (Decision: pending evidence) |
+| G6 | ไม่มี pilot candidate / pilot user → อย่างน้อย 3 pilot candidates ก่อนตัดสินใจ, แล้ว 3–5 manual pilot users ตรวจ sample hash บน testnet หลัง recommendation = proceed | todo | owner | `docs/DISCOVERY-PLAN.md` §Exit criteria; `PRODUCT.md` §Exit evidence |
+| G7 | การตัดสินใจ proceed / narrow / pivot / stop ยังรอหลักฐาน → owner บันทึก recommendation ก่อนรับผู้ใช้เข้า testnet | decide | owner | `docs/DISCOVERY-PLAN.md` (Decision: pending evidence) |
+| G8 | มีแค่ EVM behaviour tests → fuzz / property tests สำหรับ `bytes32` ที่ไม่เป็นศูนย์, Solidity static analyzer, ทบทวน bytecode / ABI เทียบ source ก่อน deploy | todo | claude | `docs/TEST-STRATEGY.md` §Required before testnet; `tests/` (ไม่มี fuzz / static analysis) |
 
 ## Open questions
 
