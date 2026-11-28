@@ -60,7 +60,7 @@ Sources: `PRODUCT.md` §Exit evidence for the next gate, `docs/ARCHITECTURE-DECI
 | G1 | ไม่มีความเห็นจากผู้เชี่ยวชาญด้านกฎหมาย / privacy → written preliminary opinion, PIA/DPIA, นโยบายข้อมูลสาธารณะ, terms | blocked | owner | `docs/LEGAL-PRIVACY-GATE.md` §Pre-testnet acceptance gate (Decision: blocked pending review) |
 | G2 | ยังไม่เลือก network, wallet, RPC และงบ gas → owner อนุมัติ testnet network และ gas ceiling | blocked | owner | `docs/ARCHITECTURE-DECISION.md` §Explicit non-decisions; gate row Network budget |
 | G3 | ไม่มี deploy และ testnet transaction → contract บน testnet + reviewed transaction (deploy ไม่อัตโนมัติจนกว่า gate ผ่าน) | blocked | claude | `README.md` §Testnet boundary; `PRODUCT.md` §Exit evidence |
-| G4 | `verify` เทียบ digest บนเครื่องเท่านั้น → เพิ่ม flag `--onchain` (opt-in) ที่ตรวจกับ `getRecord` บน chain; ค่าเริ่มต้นยังตรวจบนเครื่อง (owner ตัดสิน 2026-11-28: เพิ่ม) | todo | claude | `scripts/verify-document.mjs`; `PRODUCT.md` §Demo promise |
+| G4 | `verify` เทียบ digest บนเครื่องเท่านั้น → เพิ่ม flag `--onchain` (opt-in) ที่ตรวจกับ `getRecord` บน chain; ค่าเริ่มต้นยังตรวจบนเครื่อง; `--onchain` ส่ง digest ไปให้ผู้ให้บริการ RPC จึงใช้กับไฟล์ทดสอบเท่านั้นจนกว่า owner อนุมัติ RPC สำหรับไฟล์ลูกค้า (owner ตัดสิน 2026-11-28: เพิ่ม) | todo | claude | `scripts/verify-document.mjs`; `PRODUCT.md` §Demo promise |
 | G5 | discovery interview 0 จาก 20 → 10 SME + 10 freelancer / agency พร้อมผลสรุปแบบ aggregate | todo | owner | `docs/INTERVIEW-EVIDENCE-REGISTER.md` (Interviews completed 0); `docs/DISCOVERY-PLAN.md` |
 | G6 | ไม่มี pilot candidate / pilot user → อย่างน้อย 3 pilot candidates ก่อนตัดสินใจ, แล้ว 3–5 manual pilot users ตรวจ sample hash บน testnet หลัง recommendation = proceed | todo | owner | `docs/DISCOVERY-PLAN.md` §Exit criteria; `PRODUCT.md` §Exit evidence |
 | G7 | การตัดสินใจ proceed / narrow / pivot / stop ยังรอหลักฐาน → owner บันทึก recommendation ก่อนรับผู้ใช้เข้า testnet; owner ตัดสิน 2026-11-28: ยังไม่ตัดสินจนกว่าจะมีหลักฐานจากผู้ใช้; ทบทวน 2026-12-31 | decide | owner | `docs/DISCOVERY-PLAN.md` (Decision: pending evidence) |
@@ -68,6 +68,7 @@ Sources: `PRODUCT.md` §Exit evidence for the next gate, `docs/ARCHITECTURE-DECI
 | G9 | To-Be ให้ deploy หลังอนุมัติ network, wallet, RPC, gas แต่ยังขาดการอนุมัติการเผยแพร่ผ่าน explorer และการเก็บ artifacts → เพิ่มขั้นนี้ (Codex review 2026-11-28, จดไว้แทนการวาดใหม่ตามที่ owner สั่ง) | todo | claude | `docs/SECURITY-AND-PRIVACY.md:28-33` |
 | G10 | ทาง `proceed` เปิดเมื่อสัมภาษณ์ครบ 20 คนและมีผู้สมัคร pilot 3 คน โดยไม่ตรวจเกณฑ์ปิด discovery ข้ออื่น → เพิ่มการตรวจเกณฑ์ครบ (Codex review 2026-11-28, จดไว้แทนการวาดใหม่ตามที่ owner สั่ง) | todo | claude | `docs/INTERVIEW-EVIDENCE-REGISTER.md:78-86` |
 | G11 | บันทึกหลักฐานจบก่อนเรียก `getRecord` และไปถึง pilot ได้แม้ได้ `notarized: false` → บันทึกผลตรวจบน testnet และต้องผ่านก่อน pilot (Codex review 2026-11-28, จดไว้แทนการวาดใหม่ตามที่ owner สั่ง) | todo | claude | `docs/TEST-STRATEGY.md:36-38` |
+| G12 | As-Is แสดง `mismatch (exit 1)` เป็นทางล้มเหลวเดียว แต่ไฟล์อ่านไม่ได้หรือ digest ผิดรูปแบบก็ได้ exit 1 (stderr, ไม่มี JSON) ส่วน mismatch จริงส่ง JSON `matches: false` → แยกสองทาง (Codex review 2026-11-28, จดไว้แทนการวาดใหม่ตามที่ owner สั่ง) | todo | claude | `scripts/verify-document.mjs:14-27` |
 
 ## Open questions
 
