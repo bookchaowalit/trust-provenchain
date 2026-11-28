@@ -60,10 +60,10 @@ Sources: `PRODUCT.md` §Exit evidence for the next gate, `docs/ARCHITECTURE-DECI
 | G1 | ไม่มีความเห็นจากผู้เชี่ยวชาญด้านกฎหมาย / privacy → written preliminary opinion, PIA/DPIA, นโยบายข้อมูลสาธารณะ, terms | blocked | owner | `docs/LEGAL-PRIVACY-GATE.md` §Pre-testnet acceptance gate (Decision: blocked pending review) |
 | G2 | ยังไม่เลือก network, wallet, RPC และงบ gas → owner อนุมัติ testnet network และ gas ceiling | blocked | owner | `docs/ARCHITECTURE-DECISION.md` §Explicit non-decisions; gate row Network budget |
 | G3 | ไม่มี deploy และ testnet transaction → contract บน testnet + reviewed transaction (deploy ไม่อัตโนมัติจนกว่า gate ผ่าน) | blocked | claude | `README.md` §Testnet boundary; `PRODUCT.md` §Exit evidence |
-| G4 | `verify` เทียบ digest บนเครื่องเท่านั้น → ตรวจกับ `getRecord` บน chain เพื่อ independent verification [ต้องยืนยัน] ว่า owner ต้องการใน CLI นี้ | decide | owner | `scripts/verify-document.mjs`; `PRODUCT.md` §Demo promise |
+| G4 | `verify` เทียบ digest บนเครื่องเท่านั้น → เพิ่ม flag `--onchain` (opt-in) ที่ตรวจกับ `getRecord` บน chain; ค่าเริ่มต้นยังตรวจบนเครื่อง (owner ตัดสิน 2026-11-28: เพิ่ม) | todo | claude | `scripts/verify-document.mjs`; `PRODUCT.md` §Demo promise |
 | G5 | discovery interview 0 จาก 20 → 10 SME + 10 freelancer / agency พร้อมผลสรุปแบบ aggregate | todo | owner | `docs/INTERVIEW-EVIDENCE-REGISTER.md` (Interviews completed 0); `docs/DISCOVERY-PLAN.md` |
 | G6 | ไม่มี pilot candidate / pilot user → อย่างน้อย 3 pilot candidates ก่อนตัดสินใจ, แล้ว 3–5 manual pilot users ตรวจ sample hash บน testnet หลัง recommendation = proceed | todo | owner | `docs/DISCOVERY-PLAN.md` §Exit criteria; `PRODUCT.md` §Exit evidence |
-| G7 | การตัดสินใจ proceed / narrow / pivot / stop ยังรอหลักฐาน → owner บันทึก recommendation ก่อนรับผู้ใช้เข้า testnet | decide | owner | `docs/DISCOVERY-PLAN.md` (Decision: pending evidence) |
+| G7 | การตัดสินใจ proceed / narrow / pivot / stop ยังรอหลักฐาน → owner บันทึก recommendation ก่อนรับผู้ใช้เข้า testnet; owner ตัดสิน 2026-11-28: ยังไม่ตัดสินจนกว่าจะมีหลักฐานจากผู้ใช้; ทบทวน 2026-12-31 | decide | owner | `docs/DISCOVERY-PLAN.md` (Decision: pending evidence) |
 | G8 | มีแค่ EVM behaviour tests → fuzz / property tests สำหรับ `bytes32` ที่ไม่เป็นศูนย์, Solidity static analyzer, ทบทวน bytecode / ABI เทียบ source ก่อน deploy | todo | claude | `docs/TEST-STRATEGY.md` §Required before testnet; `tests/` (ไม่มี fuzz / static analysis) |
 
 ## Open questions
